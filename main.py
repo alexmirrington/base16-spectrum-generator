@@ -39,7 +39,6 @@ def generate_pixels(colours: list, width: int, height: int):
 
     for i, c in enumerate(colours):
         colour = np.array(c, dtype=np.uint8)
-        print(colour)
         if i == 0:
             pixels = np.tile(colour, (height, block_width + block_remainder, 1))
             continue
