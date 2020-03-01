@@ -1,6 +1,7 @@
 import sys
+import numpy as np
 import os.path
-import png
+from PIL import Image
 import yaml
 
 def main(theme_file, out_file):
@@ -16,7 +17,7 @@ def main(theme_file, out_file):
 
     colours = []
 
-    for k, v in theme.items():
+    for _, v in theme.items():
         if (len(colours) == 16):
             break
         col = parse_hex(v)
@@ -28,13 +29,25 @@ def main(theme_file, out_file):
     width = 800
     height = 100
     pixels = generate_pixels(colours, width, height)
-    png.from_array(pixels, mode='RGB').save(out_file)
 
-def generate_pixels(colours, width, height):
-    pixels = [[colours[int(len(colours) * x / width)] for x in range(width)] for y in range(height)]
+    Image.fromarray(pixels, mode='RGB').save(out_file)
+
+def generate_pixels(colours: list, width: int, height: int):
+    block_width = int(width/len(colours))
+    block_remainder = width % len(colours)
+
+    for i, c in enumerate(colours):
+        colour = np.array(c, dtype=np.uint8)
+        print(colour)
+        if i == 0:
+            pixels = np.tile(colour, (height, block_width + block_remainder, 1))
+            continue
+        block = np.tile(colour, (height, block_width, 1))
+        pixels = np.concatenate((pixels, block), axis=1)
+
     return pixels
 
-def parse_hex(value):
+def parse_hex(value: str):
     try:
         val = int(value, base=16)
     except:
@@ -44,7 +57,7 @@ def parse_hex(value):
     b = (val & 0x0000FF) >> 0
     return (r, g, b)
 
-def parse_args(args):
+def parse_args(args: list):
     if (len(args) != 3):
         print_help()
         return
@@ -59,7 +72,7 @@ def parse_args(args):
     }
 
 def print_help():
-    print('Usage: spectrum_generator <theme_file> <output_file>')
+    print('Usage: python main.py <theme_file> <output_file>')
 
 if __name__ == "__main__":
     parsed_args = parse_args(sys.argv)
