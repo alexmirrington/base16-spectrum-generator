@@ -17,11 +17,12 @@ def main(theme_file, out_file):
 
     colours = []
 
-    for _, v in theme.items():
-        if (len(colours) == 16):
-            break
+    for k, v in theme.items():
+        if 'base' not in k:
+            continue
+
         col = parse_hex(v)
-        # Hacky but will work fine for now. Not gonna make it more complicated than it needs to be
+
         if col != None:
             colours.append(col)
 
