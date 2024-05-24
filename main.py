@@ -6,21 +6,32 @@ import os.path
 from PIL import Image
 import yaml
 
+
 def main(theme_file, out_file):
     theme = None
 
     try:
-        with open(theme_file, 'r') as f:
+        with open(theme_file, "r") as f:
             theme = yaml.safe_load(f)
     except OSError:
-        print('Unable to open file at {0}'.format(theme_file))
-    except yaml.scanner.ScannerError:
-        print('Unable to parse file at {0}'.format(theme_file))
+        print("Unable to open file at {0}".format(theme_file))
+    except yaml.YAMLError:
+        print("Unable to parse file at {0}".format(theme_file))
 
     colours = []
 
-    for k, v in theme.items():
-        if 'base' not in k:
+    if theme == None:
+        print(
+            "Invalid theme file. Please ensure the file is a correctly formatted .yaml file."
+        )
+        return
+
+    if "palette" not in theme:
+        print("Invalid theme file. No palette found.")
+        return
+
+    for k, v in theme["palette"].items():
+        if "base" not in k:
             continue
 
         col = parse_hex(v)
@@ -33,10 +44,11 @@ def main(theme_file, out_file):
     height = 100
     pixels = generate_pixels(colours, width, height)
 
-    Image.fromarray(pixels, mode='RGB').save(out_file)
+    Image.fromarray(pixels, mode="RGB").save(out_file)
+
 
 def generate_pixels(colours: list, width: int, height: int):
-    block_width = int(width/len(colours))
+    block_width = int(width / len(colours))
     block_remainder = width % len(colours)
 
     for i, c in enumerate(colours):
@@ -49,6 +61,7 @@ def generate_pixels(colours: list, width: int, height: int):
 
     return pixels
 
+
 def parse_hex(value: str):
     try:
         val = int(value, base=16)
@@ -59,24 +72,26 @@ def parse_hex(value: str):
     b = (val & 0x0000FF) >> 0
     return (r, g, b)
 
+
 def parse_args(args: list):
-    if (len(args) != 3):
+    if len(args) != 3:
         print_help()
         return
 
     if not os.path.exists(args[1]):
-        print('Invalid theme file. Please ensure the directory exists and it is a correctly formatted .yaml file.')
+        print(
+            "Invalid theme file. Please ensure the directory exists and it is a correctly formatted .yaml file."
+        )
         return
 
-    return {
-        'theme_file': args[1],
-        'out_file': args[2]
-    }
+    return {"theme_file": args[1], "out_file": args[2]}
+
 
 def print_help():
-    print('Usage: python main.py <theme_file> <output_file>')
+    print("Usage: python main.py <theme_file> <output_file>")
+
 
 if __name__ == "__main__":
     parsed_args = parse_args(sys.argv)
-    if (parsed_args != None):
-        main(parsed_args.get('theme_file'), parsed_args.get('out_file'))
+    if parsed_args != None:
+        main(parsed_args.get("theme_file"), parsed_args.get("out_file"))
