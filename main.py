@@ -14,19 +14,32 @@ def main(theme_file, out_file):
             theme = yaml.safe_load(f)
     except OSError:
         print('Unable to open file at {0}'.format(theme_file))
-    except yaml.scanner.ScannerError:
+    except yaml.YAMLError:
         print('Unable to parse file at {0}'.format(theme_file))
 
     colours = []
 
-    for k, v in theme.items():
-        if 'base' not in k:
+    if not isinstance(theme, dict):
+        print('Invalid theme file. Expected a mapping of colours.')
+        return
+
+    palette = theme.get('palette', theme)
+    if not isinstance(palette, dict):
+        print('Invalid theme file. Expected a palette mapping.')
+        return
+
+    for k, v in palette.items():
+        if not isinstance(k, str) or 'base' not in k:
             continue
 
         col = parse_hex(v)
 
         if col != None:
             colours.append(col)
+
+    if not colours:
+        print('Invalid theme file. No valid colours found.')
+        return
 
     # TODO put these values in params
     width = 800

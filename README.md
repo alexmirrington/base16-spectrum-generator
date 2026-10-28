@@ -16,6 +16,17 @@ Explicit example:
 python main.py decaf.yaml decaf.png
 ```
 
+Both legacy themes with top-level `base00`–`base0F` colours and current themes
+with those colours under `palette` are supported. If `palette` is present, it
+is used in preference to top-level colours. YAML colour order is preserved.
+
+Install the runtime dependencies and run the regression tests with:
+
+```Bash
+python -m pip install -r requirements.txt
+python -m unittest -v
+```
+
 ## Sample Output
 
 ### [Atlas](https://github.com/ajlende/base16-atlas-scheme) by [Alex Lende](https://github.com/ajlende)
